@@ -1,0 +1,14 @@
+
+TODO :
+
+- create a smartupload.js file with a SmartUpload Object
+- ADD a var SMARTSIZE, with default 1048576 = 1Mo, size for use Smart chunk
+- ADD a var TARGET = url to send
+- use File API
+- use FileReader API
+  -> when reader.onload :
+      -> get the file size
+      -> if file size > SMARTSIZE
+          -> send a request for create a blank file on the server with file size
+          -> split the file and send each chunk
+      -> else send the file directly
