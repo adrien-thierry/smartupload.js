@@ -9,6 +9,7 @@ function smartUpload(file, target)
 	{
 		this.smartTarget = target;
 		this.smartFile = file
+		document.getElementById(file).addEventListener('change', handleFileSelect, false);
 	}
 	
 	// ERROR METHOD
@@ -39,10 +40,37 @@ function smartUpload(file, target)
 	// ABORT METHOD
 	this.abortReadding = function() 
 	{
-		this.error("Read abort");
-		reader.abort();
+		this.error("File read cancelled");
+	}
+	
+	// ONLOADSTART METHOD
+	this.onLoadStart = function() 
+	{
+		this.error("Loading");
+	}
+	this.updateProgress = function()
+	{
+		this.error("Progress");
+	}
+	
+	this.onLoad = function()
+	{
+		sendData({data: String.fromCharCode.apply(null, new Uint8Array(reader.result)), id:"undid", "type":"untype"});
 	}
 
+	this.handleFileSelect = function(evt)
+	{
+		reader = new FileReader();
+		
+		reader.onerror = this.errorHandler;
+		reader.onprogress = this.updateProgress;
+		reader.onabort = this.abordReading;
+		reader.onloadstart = this.onLoadStart;
+		reader.onload = this.onLoad;
+		// Read in the image file as an ArrayBuffer.
+		reader.readAsArrayBuffer(evt.target.files[0]);	
+	}
+	
 	// UPLOADFILE METHOD
 	function uploadFile() 
 	{
