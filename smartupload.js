@@ -40,9 +40,10 @@ function SmartUpload(target, file)
                                 break;
                         default:
                                 ROOT.error("An error occurred reading this file.");
- };
+                };
         }
- // ABORT METHOD
+        
+        // ABORT METHOD
         this.abortReadding = function()
         {
                 ROOT.error("File read cancelled");
@@ -53,6 +54,7 @@ function SmartUpload(target, file)
         {
                 ROOT.error("Loading");
         }
+        
         this.updateProgress = function()
         {
                 ROOT.error("Progress");
@@ -70,6 +72,7 @@ function SmartUpload(target, file)
                 request.open(ROOT.method, ROOT.smartTarget);
                 request.send(fd);
         }
+        
         // ONLOAD METHOD => PERFORM UPLOAD
         this.onLoad = function(evt)
         {
@@ -82,7 +85,7 @@ function SmartUpload(target, file)
                         {
                                 strArr.push(str.slice((index * ROOT.smartSize), ROOT.smartSize));
                                 index++;
-}
+                        }
                         strArr.push(str.slice((index * ROOT.smartSize)));
                         var start = 0;
                         var end = strArr.length;
@@ -119,7 +122,8 @@ function SmartUpload(target, file)
                         });
                 }
         }
- this.handleFileSelect = function(evt)
+        
+        this.handleFileSelect = function(evt)
         {
                 ROOT.reader = new FileReader();
                 ROOT.reader.onerror = ROOT.errorHandler;
