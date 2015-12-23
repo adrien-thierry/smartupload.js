@@ -12,3 +12,9 @@ TODO :
           -> send a request for create a blank file on the server with file size
           -> split the file and send each chunk
       -> else send the file directly
+- in the POST request to send data :
+    -> id : id du fichier à envoyer
+    -> type : type du fichier (text/html, video/mpeg4 ...)
+    -> data : le contenu à envoyer
+    -> position : la position du début de la data
+  
