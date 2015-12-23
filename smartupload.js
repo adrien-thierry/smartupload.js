@@ -1,35 +1,55 @@
-$(function smartUpload() {
-
-/*	Obj to upload */
-
-	var smartUploadObject = {
-		var reader,
-		var SMARTSIZE = 1048576,
-		var TARGET = document.querySelector('file'),
-
+function smartUpload(file, target) 
+{
+	this.smartSize = 131072; // => 128Ko
+	this.smartTarget;
+	this.smartFile;
+	
+	// CONSTRUCTOR	
+	this.construct = function(target, file)
+	{
+		this.smartTarget = target;
+		this.smartFile = file
 	}
-
-	function error() {
-		console.log("error");
+	
+	// ERROR METHOD
+	this.error = function(err)
+	{
+		console.log(new Date().now + " : " + err);
 	}
+	
+	// ERRORHANDLER METHOD
+	this.errorHandler = function(evt) 
+	{
+    		switch(evt.target.error.code) 
+    		{
+      			case evt.target.error.NOT_FOUND_ERR:
+        			this.error("File Not Found");
+        			break;
+      			case evt.target.error.NOT_READABLE_ERR:
+        			this.error("File is not readable");
+        			break;
+      			case evt.target.error.ABORT_ERR:
+      				this.error("Reader aborted");
+        			break;
+      			default:
+        			this.error("An error occurred reading this file.");
+    		};
+  	}
 
-	function abortReadding() {
-		console.log("Read abort");
+	// ABORT METHOD
+	this.abortReadding = function() 
+	{
+		this.error("Read abort");
 		reader.abort();
 	}
 
-	function uploadFile() {
-
-		var sizeMax = 128000;
-		var sizeMin = 100000;
-		if (TARGET.Blob.size < sizeMax) 
-			console.log("File too big");
-		else if (TARGET.Blob.size < sizeMax && TARGET.Blob.size > sizeMin)
-			// create a request for an empty file
-			// split and send it by buffer[sizeMin] 
+	// UPLOADFILE METHOD
+	function uploadFile() 
+	{
+		
 	}
-
-
-
+	
+	// CALL CONSTRUCTOR
+	this.construct(target, file);
 }
 
