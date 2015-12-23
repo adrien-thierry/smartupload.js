@@ -1,4 +1,4 @@
-function SmartUpload(file, target) 
+function SmartUpload(target, file) 
 {
 	this.smartSize = 131072; // => 128Ko
 	this.smartTarget;
