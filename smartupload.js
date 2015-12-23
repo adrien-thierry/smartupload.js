@@ -9,7 +9,7 @@ function SmartUpload(file, target)
 	{
 		this.smartTarget = target;
 		this.smartFile = file
-		document.getElementById(file).addEventListener('change', handleFileSelect, false);
+		document.getElementById(file).addEventListener('change', this.handleFileSelect, false);
 	}
 	
 	// ERROR METHOD
