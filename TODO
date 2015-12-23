@@ -16,5 +16,8 @@ TODO :
     -> id : id du fichier à envoyer
     -> type : type du fichier (text/html, video/mpeg4 ...)
     -> data : le contenu à envoyer
-    -> position : la position du début de la data
+    -> chunkStart : la position du début de la data
+    -> chunkIndex : index du morceau par rapport au nombre de morceau, commence à 0
+    -> chunkLength : la taille du morceau data envoyé
+    -> chunkTotal : la taille total du fichier
   
