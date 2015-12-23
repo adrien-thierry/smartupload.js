@@ -54,7 +54,6 @@ function SmartUpload(target, file)
         {
                 ROOT.error("Loading");
         }
-        
         this.updateProgress = function()
         {
                 ROOT.error("Progress");
@@ -72,7 +71,6 @@ function SmartUpload(target, file)
                 request.open(ROOT.method, ROOT.smartTarget);
                 request.send(fd);
         }
-        
         // ONLOAD METHOD => PERFORM UPLOAD
         this.onLoad = function(evt)
         {
@@ -83,22 +81,28 @@ function SmartUpload(target, file)
                         var index = 0;
                         while(str.byteLength > ( (index + 1) * ROOT.smartSize) )
                         {
-                                strArr.push(str.slice((index * ROOT.smartSize), ROOT.smartSize));
+                                var tmp = index * ROOT.smartSize;
+                                strArr.push(str.slice(tmp, tmp + ROOT.smartSize));
                                 index++;
                         }
                         strArr.push(str.slice((index * ROOT.smartSize)));
+
                         var start = 0;
                         var end = strArr.length;
 
                         var doSend = function(strArr, start, end, total)
                         {
-                                console.dir(String.fromCharCode.apply(null, new Uint8Array(strArr[start])));
+                                // GET THE LENGTH OF CHUNK
+                                var len = strArr[start].byteLength;
+                                // SEND A BLOB FOR NO DATA LOSS
+                                var data = new Blob([strArr[start]], { type: 'application/octet-stream' });
+
                                 ROOT.sendData(
                                 {
-                                        data: String.fromCharCode.apply(null, new Uint8Array(strArr[start])),
+                                        data: data,
                                         id: ROOT.smartId,
                                         type: ROOT.smartType,
-                                        chunkLength: strArr[start].byteLength,
+                                        chunkLength: len,
                                         chunkTotal: total,
                                         chunkIndex: start,
                                         chunkStart: start * ROOT.smartSize,
@@ -112,7 +116,7 @@ function SmartUpload(target, file)
                 {
                         ROOT.sendData(
                         {
-                                data: String.fromCharCode.apply(null, new Uint8Array(ROOT.reader.result)),
+                                data: new Blob([ROOT.reader.result], { type: 'application/octet-stream' }),
                                 id: ROOT.smartId,
                                 type: ROOT.smartType,
                                 chunkLength: evt.total,
@@ -122,7 +126,7 @@ function SmartUpload(target, file)
                         });
                 }
         }
-        
+
         this.handleFileSelect = function(evt)
         {
                 ROOT.reader = new FileReader();
