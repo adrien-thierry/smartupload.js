@@ -1,8 +1,10 @@
 function SmartUpload(target, file)
 {
-        this.smartSize = 131072; // => 128Ko
+        this.smartSize = 1024 * 10;
         this.smartTarget;
         this.smartFile;
+        this.smartType;
+        this.smartId;
         this.reader;
         this.method = "POST";
         var ROOT = this; // HANDLE TO THIS
@@ -38,7 +40,7 @@ function SmartUpload(target, file)
                                 break;
                         default:
                                 ROOT.error("An error occurred reading this file.");
-                };
+ };
         }
  // ABORT METHOD
         this.abortReadding = function()
@@ -58,28 +60,66 @@ function SmartUpload(target, file)
 
         this.sendData = function(dataArray)
         {
-		var fd = new FormData();
-		for(var d in dataArray)
-		{
-			fd.append(d, dataArray[d]);
-		}
-		
-		var request = new XMLHttpRequest();
-		request.open(ROOT.method, ROOT.smartTarget);
-		request.send(fd);
-        }
-
-        this.onLoad = function()
-        {
-                ROOT.sendData(
+                var fd = new FormData();
+                for(var d in dataArray)
                 {
-                        data: String.fromCharCode.apply(null, new Uint8Array(ROOT.reader.result)),
-                        id:"undid",
-                        type:"untype"
-                });
-        }
+                        fd.append(d, dataArray[d]);
+                }
 
-        this.handleFileSelect = function(evt)
+                var request = new XMLHttpRequest();
+                request.open(ROOT.method, ROOT.smartTarget);
+                request.send(fd);
+        }
+        // ONLOAD METHOD => PERFORM UPLOAD
+        this.onLoad = function(evt)
+        {
+                if(evt.total > ROOT.smartSize)
+                {
+                        var str = ROOT.reader.result;
+                        var strArr = [];
+                        var index = 0;
+                        while(str.byteLength > ( (index + 1) * ROOT.smartSize) )
+                        {
+                                strArr.push(str.slice((index * ROOT.smartSize), ROOT.smartSize));
+                                index++;
+}
+                        strArr.push(str.slice((index * ROOT.smartSize)));
+                        var start = 0;
+                        var end = strArr.length;
+
+                        var doSend = function(strArr, start, end, total)
+                        {
+                                console.dir(String.fromCharCode.apply(null, new Uint8Array(strArr[start])));
+                                ROOT.sendData(
+                                {
+                                        data: String.fromCharCode.apply(null, new Uint8Array(strArr[start])),
+                                        id: ROOT.smartId,
+                                        type: ROOT.smartType,
+                                        chunkLength: strArr[start].byteLength,
+                                        chunkTotal: total,
+                                        chunkIndex: start,
+                                        chunkStart: start * ROOT.smartSize,
+                                });
+                                start++;
+                                if(start < end) doSend(strArr, start, end , total);
+                        }
+                        doSend(strArr, start, end, str.byteLength);
+                }
+                else
+                {
+                        ROOT.sendData(
+                        {
+                                data: String.fromCharCode.apply(null, new Uint8Array(ROOT.reader.result)),
+                                id: ROOT.smartId,
+                                type: ROOT.smartType,
+                                chunkLength: evt.total,
+                                chunkTotal: evt.total,
+                                chunkIndex: 0,
+                                chunkStart: 0
+                        });
+                }
+        }
+ this.handleFileSelect = function(evt)
         {
                 ROOT.reader = new FileReader();
                 ROOT.reader.onerror = ROOT.errorHandler;
@@ -87,7 +127,9 @@ function SmartUpload(target, file)
                 ROOT.reader.onabort = ROOT.abordReading;
                 ROOT.reader.onloadstart = ROOT.onLoadStart;
                 ROOT.reader.onload = ROOT.onLoad;
-                ROOT.reader.readAsArrayBuffer(evt.target.files[0]);     // TODO : BOUCLE FOREACH FILES
+                ROOT.smartType = evt.target.files[0].type;
+                ROOT.smartId = evt.target.files[0].name;
+                ROOT.reader.readAsArrayBuffer(evt.target.files[0]);     // TODO : ITERATE FOREACH FILES ?
         }
 
         // CALL CONSTRUCTOR
