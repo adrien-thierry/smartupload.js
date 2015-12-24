@@ -1,136 +1,234 @@
-<style>
-  #progress_bar {
-    margin: 10px 0;
-    padding: 3px;
-    border: 1px solid #000;
-    font-size: 14px;
-    clear: both;
-    opacity: 0;
-    -moz-transition: opacity 1s linear;
-    -o-transition: opacity 1s linear;
-    -webkit-transition: opacity 1s linear;
-  }
-  #progress_bar.loading {
-    opacity: 1.0;
-  }
-  #progress_bar .percent {
-    background-color: #99ccff;
-    height: auto;
-    width: 0;
-  }
-</style>
+function SmartUpload(target, file)
+{
+	var CURRENT = 0;
+	var TOTAL = 0;
+        this.smartSize = 1024 * 10;
+	this.smartTimeout = 1000 * 1; // IN MS
+        this.smartTarget;
+        this.smartFile;
+        this.smartType;
+        this.smartId;
+	this.smartCurrent = CURRENT;
+	this.smartTotal = TOTAL;
+        this.smartMethod = "POST";
+        this.smartAsync = true;
+       	this.smartEvent = [];
 
-<input type="file" id="files" name="file" />
-<button onclick="abortRead();">Cancel read</button>
-<div id="progress_bar"><div class="percent">0%</div></div>
+        // READER
+        this.reader;
 
-<script>
-  var reader;
-  var progress = document.querySelector('.percent');
+        var ROOT = this; // HANDLE TO THIS
 
-  function abortRead() {
-    reader.abort();
-  }
+        // CONSTRUCTOR
+        this.construct = function(target, file)
+        {
+                this.smartTarget = target;
+                this.smartFile = file
+                // HOOK CHANGE EVENT ON FILE INPUT WITH ID "FILE"
+                document.getElementById(file).addEventListener('change', this.handleFileSelect, false);
+        }
 
- function errorHandler(evt) {
-    switch(evt.target.error.code) {
-      case evt.target.error.NOT_FOUND_ERR:
-        alert('File Not Found!');
-        break;
-      case evt.target.error.NOT_READABLE_ERR:
-        alert('File is not readable');
-        break;
-      case evt.target.error.ABORT_ERR:
-        break; // noop
-      default:
-        alert('An error occurred reading this file.');
-    };
-  }
+        // ERROR METHOD
+        this.error = function(err)
+        {
+                console.log(new Date(Date.now()) + " : " + err);
+        }
 
-  function updateProgress(evt) {
-    // evt is an ProgressEvent.
-    if (evt.lengthComputable) {
-      var percentLoaded = Math.round((evt.loaded / evt.total) * 100);
-      // Increase the progress bar length.
-      if (percentLoaded < 100) {
-        progress.style.width = percentLoaded + '%';
-        progress.textContent = percentLoaded + '%';
-      }
-    }
-  }
+        // ERRORHANDLER METHOD
+        this.errorHandler = function(evt)
+        {
+                switch(evt.target.error.code)
+                {
+                        case evt.target.error.NOT_FOUND_ERR:
+                                ROOT.error("File Not Found");
+                                break;
+                        case evt.target.error.NOT_READABLE_ERR:
+                                ROOT.error("File is not readable");
+                                break;
+                        case evt.target.error.ABORT_ERR:
+                                ROOT.error("Reader aborted");
+                                break;
+                        default:
+                                ROOT.error("An error occurred reading this file.");
+                };
+        }
+        
+        // ABORT METHOD
+        this.abortReadding = function()
+        {
+                ROOT.error("File read cancelled");
+        }
 
- function handleFileSelect(evt) {
-    // Reset progress indicator on new file selection.
-    progress.style.width = '0%';
-    progress.textContent = '0%';
+        // ONLOADSTART METHOD
+        this.onLoadStart = function()
+        {
+                ROOT.error("Loading file");
+        }
 
-    reader = new FileReader();
-    reader.onerror = errorHandler;
-    reader.onprogress = updateProgress;
-    reader.onabort = function(e) {
-      alert('File read cancelled');
-    };
-    reader.onloadstart = function(e) {
-      document.getElementById('progress_bar').className = 'loading';
-    };
-    reader.onload = function(e) {
-      sendData({data: String.fromCharCode.apply(null, new Uint8Array(reader.result)), id:"undid", "type":"untype"});
-        // Ensure that the progress bar displays 100% at the end.
-      progress.style.width = '100%';
-      progress.textContent = '100%';
-      setTimeout("document.getElementById('progress_bar').className='';", 2000);
-    }
+        this.updateProgress = function()
+        {
+                ROOT.error("Reading file");
+        }
 
-    // Read in the image file as an ArrayBuffer.
-    reader.readAsArrayBuffer(evt.target.files[0]);
-  }
+	this.onProgress = function(current, total)
+	{
+		ROOT.error("Finished " + current + "/" + total);
+	}
 
-  document.getElementById('files').addEventListener('change', handleFileSelect, false);
+        this.sendData = function(dataArray, cb)
+        {
+                var fd = new FormData();
+                for(var d in dataArray)
+                {
+                        fd.append(d, dataArray[d]);
+                }
+		try
+		{
+	                var request = new XMLHttpRequest();
+	                request.open(ROOT.smartMethod, ROOT.smartTarget, true);
+			request.onreadystatechange = function (aEvt) 
+			{
+	  			if (request.readyState == 4) 
+				{
+					if(request.status == 200)
+					{
+						var result = JSON.parse(request.responseText);
+						if(result.code == 0)
+						{
+							CURRENT++;
+							ROOT.onProgress(CURRENT, TOTAL);	
+							if(cb)
+							{
+								cb(null);
+							}
+						}
+						else
+						{
+							if(cb)
+							{
+								cb(result);
+							}
+							else
+							{
+								setTimeout(function(){ROOT.sendData(dataArray, cb);}, ROOT.smartTimeout);
+							}
+						}
+					}
+					else
+					{
+						ROOT.error("Http request error");
+						if(cb)
+						{
+							cb({code:400, message:"Http request error", status:"Error"});
+						}
+						else
+                                                {
+                                                	setTimeout(function(){ROOT.sendData(dataArray, cb);}, ROOT.smartTimeout);
+                                                }
+					}
+	 			}
+			};
+	                request.send(fd);
+		}
+		catch(e)
+		{
+			ROOT.error(e);
+			if(cb)
+			{
+				cb({code:900, message:e, status:"Error"});
+			}
+			else
+                        {
+                        	setTimeout(function(){ROOT.sendData(dataArray, cb);}, ROOT.smartTimeout);
+                        }
+		}
+        }
+        // ONLOAD METHOD => PERFORM UPLOAD
+        this.onLoad = function(evt)
+        {
+        	// FILE SIZE > ROOT.SMARTSIZE
+                if(evt.total > ROOT.smartSize)
+                {
+                        var str = ROOT.reader.result;
+                        var strArr = [];
+                        var index = 0;
+                        while(str.byteLength > ( (index + 1) * ROOT.smartSize) )
+                        {
+                                var tmp = index * ROOT.smartSize;
+                                strArr.push(str.slice(tmp, tmp + ROOT.smartSize));
+                                index++;
+                        }
+                        strArr.push(str.slice((index * ROOT.smartSize)));
+			TOTAL = index+1;
+			
+                        var start = 0;
+                        var end = strArr.length;
 
- // Let's create the iFrame used to send our data
-var iframe = document.createElement("iframe");
-iframe.name = "myTarget";
+                        var doSend = function(strArr, start, end, total)
+                        {
+                                // GET THE LENGTH OF CHUNK
+                                var len = strArr[start].byteLength;
+                                // CREATE A BLOB
+                                var data = new Blob([strArr[start]], { type: 'application/octet-stream' });
 
-// Next, attach the iFrame to the main document
-window.addEventListener("load", function () {
-  iframe.style.display = "none";
-  document.body.appendChild(iframe);
-});
+				var next = function(err)
+				{		
+                                	if(err == null)
+					{
+						start++;
+		                                if(start < end) doSend(strArr, start, end , total);
+					}
+					else
+					{
+						setTimeout(function(){ doSend(strArr, start, end , total); }, ROOT.smartTimeout);
+					}
+				}
+				var cb = null;
+				if(!ROOT.smartAsync) cb = next;
 
-// This is the function used to actually send the data
-// It takes one parameter, which is an object populated with key/value pairs.
-function sendData(data) {
-  var name,
-      form = document.createElement("form"),
-      node = document.createElement("input");
+                                ROOT.sendData(
+                                {
+                                        data: data,
+                                        id: ROOT.smartId,
+                                        type: ROOT.smartType,
+                                        chunkLength: len,
+                                        chunkTotal: total,
+                                        chunkIndex: start,
+                                        chunkStart: (start * ROOT.smartSize) - 1,
+                                }, cb);
+                                if(ROOT.smartAsync) next();
+                        }
+                        doSend(strArr, start, end, str.byteLength);
+                }
+                else
+                {
+			TOTAL = 1;
+                        ROOT.sendData(
+                        {
+                                data: new Blob([ROOT.reader.result], { type: 'application/octet-stream' }),
+                                id: ROOT.smartId,
+                                type: ROOT.smartType,
+                                chunkLength: evt.total,
+                                chunkTotal: evt.total,
+                                chunkIndex: 0,
+                                chunkStart: 0
+                        });
+                }
+        }
 
-  // Define what should happen when the response is loaded
-  iframe.addEventListener("load", function () {
-    alert("Yeah! Data sent.");
-  });
+        this.handleFileSelect = function(evt)
+        {
+                ROOT.reader = new FileReader();
+                ROOT.reader.onerror = ROOT.errorHandler;
+                ROOT.reader.onprogress = ROOT.updateProgress;
+                ROOT.reader.onabort = ROOT.abordReading;
+                ROOT.reader.onloadstart = ROOT.onLoadStart;
+                ROOT.reader.onload = ROOT.onLoad;
+                ROOT.smartType = evt.target.files[0].type;
+                ROOT.smartId = evt.target.files[0].name;
+                ROOT.reader.readAsArrayBuffer(evt.target.files[0]);     // TODO : ITERATE FOREACH FILES ?
+        }
 
-  form.action = "http://127.0.0.1/";
-  form.target = iframe.name;
-  form.method = "POST";
-  form.enctype = "multipart/form-data";
-
-  for(name in data) {
-    node.name  = name;
-    node.value = data[name].toString();
-    form.appendChild(node.cloneNode());
-  }
-
-  // To be sent, the form needs to be attached to the main document.
-  form.style.display = "none";
-  document.body.appendChild(form);
-
-  form.submit();
-
-
-  // But once the form is sent, it's useless to keep it.
-  document.body.removeChild(form);
+        // CALL CONSTRUCTOR
+        this.construct(target, file);
 }
-
-</script>
-    
-                
