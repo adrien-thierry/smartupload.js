@@ -14,6 +14,14 @@ You can add events/cb easily :
 smartUp.updateProgress = function(){ /* DO SOMETHING HERE */ };
 ```
 
+Or change chunks size, method and send data synchronously:
+
+```javascript
+smartUp.smartSize = 1024 * 100; //100 Ko DEFAULT => 10Ko
+smartUp.smartMethod = "PUT"; // DEFAULT => "POST"
+smartUp.smartAsync = false; // DEFAULT => true
+```
+
 Format
 ------
 
@@ -28,13 +36,20 @@ Chunks of data are sent with POST method, with multipart/form-data enctype. the 
 - chunkTotal  -- the length of the file
 
 
-Functionality
--------------
+Functionalities
+---------------
 
 0. async/sync upload
 0. auto retry when upload fail
 0. choose a size of chunk to send
 0. catch all events to show a progress/status bar
+
+Properties
+----------
+
+- smartSize -- INT -- the size of each chunk, in octet
+- smartTimeout -- INT -- the timeout before re-send data when error occured in ms
+- smartAsync -- BOOL - Is data are sent synchronously or not ? 
 
 Events
 ------
