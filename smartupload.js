@@ -6,9 +6,12 @@ function SmartUpload(target, file)
         this.smartFile;
         this.smartType;
         this.smartId;
+        this.smartMethod = "POST";
+        this.smartAsync = true;
+        
+        // READER
         this.reader;
-        this.method = "POST";
-        this.async = true;
+
         var ROOT = this; // HANDLE TO THIS
 
         // CONSTRUCTOR
@@ -71,7 +74,7 @@ function SmartUpload(target, file)
 
                 var request = new XMLHttpRequest();
 		request.onload = cb;
-                request.open(ROOT.method, ROOT.smartTarget);
+                request.open(ROOT.smartMethod, ROOT.smartTarget);
                 request.send(fd);
         }
         // ONLOAD METHOD => PERFORM UPLOAD
@@ -107,7 +110,7 @@ function SmartUpload(target, file)
 	                                if(start < end) doSend(strArr, start, end , total);
 				}
 				var cb = null;
-				if(!ROOT.async) cb = next;
+				if(!ROOT.smartAsync) cb = next;
 
                                 ROOT.sendData(
                                 {
@@ -119,7 +122,7 @@ function SmartUpload(target, file)
                                         chunkIndex: start,
                                         chunkStart: (start * ROOT.smartSize) - 1,
                                 }, cb);
-                                if(ROOT.async) next();
+                                if(ROOT.smartAsync) next();
                         }
                         doSend(strArr, start, end, str.byteLength);
                 }
