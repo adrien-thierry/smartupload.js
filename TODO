@@ -1,11 +1,14 @@
 
 TODO :
 
+- ADD a onDone() CallBack
 
-- Check server JSON return and repost data if error after a var smartTimeout
-- Add an event with current part correctly posted (for progress bar etc...)
-  => function progress(index, total) where index = current index and total = total index
 
+DONE :
+
+- Check server JSON return and repost data if error after a var smartTimeout DONE
+- Add an event with current part correctly posted (for progress bar etc...) DONE
+  => function onProgress(current, total) where current = current number of chunk sent and total = total index
 - create a smartupload.js file with a SmartUpload Object DONE
 - ADD a var SMARTSIZE, with default 1048576 = 1Mo, size for use Smart chunk DONE
 - ADD a var TARGET = url to send DONE
