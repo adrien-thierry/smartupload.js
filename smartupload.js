@@ -106,7 +106,7 @@ function SmartUpload(target, file)
 	                                if(start < end) doSend(strArr, start, end , total);
 				}
 				var cb = null;
-				if(!this.async) cb = next;
+				if(!ROOT.async) cb = next;
 
                                 ROOT.sendData(
                                 {
@@ -118,7 +118,7 @@ function SmartUpload(target, file)
                                         chunkIndex: start,
                                         chunkStart: (start * ROOT.smartSize) - 1,
                                 }, cb);
-                                if(this.async) next();
+                                if(ROOT.async) next();
                         }
                         doSend(strArr, start, end, str.byteLength);
                 }
