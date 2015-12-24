@@ -70,7 +70,10 @@ function SmartUpload(target, file)
         {
                 ROOT.error("Loading file");
         }
-
+	this.onDone = function()
+	{
+		
+	}
         this.updateProgress = function()
         {
                 ROOT.error("Reading file");
@@ -102,7 +105,8 @@ function SmartUpload(target, file)
 						if(result.code == 0)
 						{
 							CURRENT++;
-							ROOT.onProgress(CURRENT, TOTAL);	
+							ROOT.onProgress(CURRENT, TOTAL);
+							if(CURRENT == TOTAL) ROOT.onDone();	
 							if(cb)
 							{
 								cb(null);
@@ -174,9 +178,7 @@ function SmartUpload(target, file)
                         {
                                 // GET THE LENGTH OF CHUNK
                                 var len = strArr[start].byteLength;
-                                // CREATE A BLOB
                                 var data = new Blob([strArr[start]], { type: 'application/octet-stream' });
-
 				var next = function(err)
 				{		
                                 	if(err == null)
