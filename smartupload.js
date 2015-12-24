@@ -7,6 +7,7 @@ function SmartUpload(target, file)
         this.smartId;
         this.reader;
         this.method = "POST";
+        this.async = true;
         var ROOT = this; // HANDLE TO THIS
 
         // CONSTRUCTOR
@@ -75,6 +76,7 @@ function SmartUpload(target, file)
         // ONLOAD METHOD => PERFORM UPLOAD
         this.onLoad = function(evt)
         {
+        	// FILE SIZE > ROOT.SMARTSIZE
                 if(evt.total > ROOT.smartSize)
                 {
                         var str = ROOT.reader.result;
@@ -95,14 +97,16 @@ function SmartUpload(target, file)
                         {
                                 // GET THE LENGTH OF CHUNK
                                 var len = strArr[start].byteLength;
-                                // SEND A BLOB
+                                // CREATE A BLOB
                                 var data = new Blob([strArr[start]], { type: 'application/octet-stream' });
 
-				var cb = function()
+				var next = function()
 				{				
                                 	start++;
 	                                if(start < end) doSend(strArr, start, end , total);
 				}
+				var cb = null;
+				if(!this.async) cb = next;
 
                                 ROOT.sendData(
                                 {
@@ -113,8 +117,8 @@ function SmartUpload(target, file)
                                         chunkTotal: total,
                                         chunkIndex: start,
                                         chunkStart: (start * ROOT.smartSize) - 1,
-                                });
-				cb();
+                                }, cb);
+                                if(this.async) next();
                         }
                         doSend(strArr, start, end, str.byteLength);
                 }
