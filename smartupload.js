@@ -1,14 +1,24 @@
+/*
+add this.onStart => mettre les bars Ã  zÃ©ro
+add this.onProgress => progress++ pour chaque fichier ok, et params(progress, total)
+*/
+
 function SmartUpload(target, file)
 {
-        this.smartSize = 1024 * 128; // IN OCTET
+	var CURRENT = 0;
+	var TOTAL = 0;
+        this.smartSize = 1024 * 10;
 	this.smartTimeout = 1000 * 1; // IN MS
         this.smartTarget;
         this.smartFile;
         this.smartType;
         this.smartId;
+	this.smartCurrent = CURRENT;
+	this.smartTotal = TOTAL;
         this.smartMethod = "POST";
         this.smartAsync = true;
-        
+       	this.smartEvent = [];
+
         // READER
         this.reader;
 
@@ -21,6 +31,12 @@ function SmartUpload(target, file)
                 this.smartFile = file
                 // HOOK CHANGE EVENT ON FILE INPUT WITH ID "FILE"
                 document.getElementById(file).addEventListener('change', this.handleFileSelect, false);
+        }
+        
+        this.init = function()
+        {
+        	CURRENT = 0;
+        	TOTAL = 0;
         }
 
         // ERROR METHOD
@@ -57,12 +73,18 @@ function SmartUpload(target, file)
         // ONLOADSTART METHOD
         this.onLoadStart = function()
         {
-                ROOT.error("Loading");
+                ROOT.error("Loading file");
         }
+
         this.updateProgress = function()
         {
-                ROOT.error("Progress");
+                ROOT.error("Reading file");
         }
+
+	this.onProgress = function(current, total)
+	{
+		ROOT.error("Finished " + current + "/" + total);
+	}
 
         this.sendData = function(dataArray, cb)
         {
@@ -71,11 +93,66 @@ function SmartUpload(target, file)
                 {
                         fd.append(d, dataArray[d]);
                 }
-
-                var request = new XMLHttpRequest();
-		request.onload = cb;
-                request.open(ROOT.smartMethod, ROOT.smartTarget);
-                request.send(fd);
+		try
+		{
+	                var request = new XMLHttpRequest();
+	                request.open(ROOT.smartMethod, ROOT.smartTarget, true);
+			request.onreadystatechange = function (aEvt) 
+			{
+	  			if (request.readyState == 4) 
+				{
+					if(request.status == 200)
+					{
+						var result = JSON.parse(request.responseText);
+						if(result.code == 0)
+						{
+							CURRENT++;
+							ROOT.onProgress(CURRENT, TOTAL);	
+							if(cb)
+							{
+								cb(null);
+							}
+						}
+						else
+						{
+							if(cb)
+							{
+								cb(result);
+							}
+							else
+							{
+								setTimeout(function(){ROOT.sendData(dataArray, cb);}, ROOT.smartTimeout);
+							}
+						}
+					}
+					else
+					{
+						ROOT.error("Http request error");
+						if(cb)
+						{
+							cb({code:400, message:"Http request error", status:"Error"});
+						}
+						else
+                                                {
+                                                	setTimeout(function(){ROOT.sendData(dataArray, cb);}, ROOT.smartTimeout);
+                                                }
+					}
+	 			}
+			};
+	                request.send(fd);
+		}
+		catch(e)
+		{
+			ROOT.error(e);
+			if(cb)
+			{
+				cb({code:900, message:e, status:"Error"});
+			}
+			else
+                        {
+                        	setTimeout(function(){ROOT.sendData(dataArray, cb);}, ROOT.smartTimeout);
+                        }
+		}
         }
         // ONLOAD METHOD => PERFORM UPLOAD
         this.onLoad = function(evt)
@@ -93,7 +170,8 @@ function SmartUpload(target, file)
                                 index++;
                         }
                         strArr.push(str.slice((index * ROOT.smartSize)));
-
+			TOTAL = index+1;
+			
                         var start = 0;
                         var end = strArr.length;
 
@@ -104,10 +182,17 @@ function SmartUpload(target, file)
                                 // CREATE A BLOB
                                 var data = new Blob([strArr[start]], { type: 'application/octet-stream' });
 
-				var next = function()
-				{				
-                                	start++;
-	                                if(start < end) doSend(strArr, start, end , total);
+				var next = function(err)
+				{		
+                                	if(err == null)
+					{
+						start++;
+		                                if(start < end) doSend(strArr, start, end , total);
+					}
+					else
+					{
+						setTimeout(function(){ doSend(strArr, start, end , total); }, ROOT.smartTimeout);
+					}
 				}
 				var cb = null;
 				if(!ROOT.smartAsync) cb = next;
@@ -128,6 +213,7 @@ function SmartUpload(target, file)
                 }
                 else
                 {
+			TOTAL = 1;
                         ROOT.sendData(
                         {
                                 data: new Blob([ROOT.reader.result], { type: 'application/octet-stream' }),
@@ -143,6 +229,7 @@ function SmartUpload(target, file)
 
         this.handleFileSelect = function(evt)
         {
+        	ROOT.init();
                 ROOT.reader = new FileReader();
                 ROOT.reader.onerror = ROOT.errorHandler;
                 ROOT.reader.onprogress = ROOT.updateProgress;
