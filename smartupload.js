@@ -1,6 +1,7 @@
 function SmartUpload(target, file)
 {
         this.smartSize = 1024 * 10;
+	this.smartTimeout = 100; // IN MS
         this.smartTarget;
         this.smartFile;
         this.smartType;
