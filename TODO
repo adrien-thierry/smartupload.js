@@ -1,11 +1,14 @@
 
 TODO :
 
-- ADD a onDone() CallBack
+- ADD the same evt param for all callback
+- ADD the SmartUpload Object to evt object
+
 
 
 DONE :
 
+- ADD a onDone() CallBack DONE
 - Check server JSON return and repost data if error after a var smartTimeout DONE
 - Add an event with current part correctly posted (for progress bar etc...) DONE
   => function onProgress(current, total) where current = current number of chunk sent and total = total index
