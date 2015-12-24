@@ -17,7 +17,7 @@ smartUp.updateProgress = function(){ /* DO SOMETHING HERE */ };
 Or change chunks size, method and send data synchronously:
 
 ```javascript
-smartUp.smartSize = 1024 * 100; //100 Ko DEFAULT => 10Ko
+smartUp.smartSize = 1024 * 100; //100 Ko DEFAULT => 128Ko
 smartUp.smartMethod = "PUT"; // DEFAULT => "POST"
 smartUp.smartAsync = false; // DEFAULT => true
 ```
@@ -58,3 +58,4 @@ Events
 0. abortReadding
 0. onLoadStart
 0. updateProgress
+0. onProgress
