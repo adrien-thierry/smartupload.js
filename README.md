@@ -14,6 +14,20 @@ You can add events/cb easily :
 smartUp.updateProgress = function(){ /* DO SOMETHING HERE */ };
 ```
 
+Format
+------
+
+Chunks of data are sent with POST method, with multipart/form-data enctype. the result is a POST Object :
+
+- data        -- the chunk of data in binary format
+- id          -- the id of the file (== filename)
+- type        -- the mimeType of the file
+- chunkIndex  -- the chunk index, begin at 0
+- chunkLength -- the length of chunk sent
+- chunkStart  -- the start of chunk sent in the file
+- chunkTotal  -- the length of the file
+
+
 Functionality
 -------------
 
