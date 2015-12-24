@@ -1,0 +1,47 @@
+<html>
+<head></head>
+  <body>
+    <style>
+      #progress_bar {
+        margin: 10px 0;
+        padding: 3px;
+        border: 1px solid #000;
+        font-size: 14px;
+        clear: both;
+        -moz-transition: opacity 1s linear;
+        -o-transition: opacity 1s linear;
+        -webkit-transition: opacity 1s linear;
+      }
+      #progress_bar.loading {
+        opacity: 1.0;
+      }
+      #progress_bar .percent {
+        background-color: #99ccff;
+        height: auto;
+        width: 0;
+      }
+    </style>
+    
+    <script src="smart.js"></script>
+    <input type="file" id="fileId" name="file" />
+    <div id="progress_bar"><div class="loading percent">0%</div></div>
+
+    <script>
+      var smartUp = new SmartUpload("http://127.0.0.1/store/append/?apikey=testapikey", "fileId");
+      var progress = document.querySelector('.percent');
+      smartUp.onProgress = function(current, total)     
+      {
+          var percentLoaded = Math.floor((current / total) * 100);
+          progress.style.width = percentLoaded + '%';
+          progress.textContent = percentLoaded + '%';
+      }
+    
+     smartUp.onLoadStart = function()
+     {
+        progress.style.width = '0%';
+        progress.textContent = '0%';
+     };
+    </script>
+
+  </body>
+</html>
