@@ -27,7 +27,7 @@
     <div id="progress_bar"><div class="loading percent">0%</div></div>
 
     <script>
-      var smartUp = new SmartUpload("http://127.0.0.1/store/append/?apikey=testapikey", "fileId");
+      var smartUp = new SmartUpload("http://target/upload", "fileId");
       var progress = document.querySelector('.percent');
       smartUp.onProgress = function(current, total)     
       {
