@@ -1,18 +1,15 @@
 <html>
   <head></head>
   <body>
+    
     <h1>SmartUpload.js DEMO</h1>
-    <script src="smartupload.js"></script>
+    
     <input id="fileId" type="file">
     
+    <script src="smartupload.js"></script>
     <script>
-      // Create SmartUpload object
       var smartUp = new SmartUpload("http://127.0.0.1/upload.php", "fileId");
-
-      /*
-        You could override events simply:
-        smartUp.updateProgress = function(){ /* DO SOMETHING HERE */ };
-      */
     </script>
+    
   </body>
 </html>
