@@ -59,7 +59,7 @@ function SmartUpload(target, file)
                 ROOT.error("Progress");
         }
 
-        this.sendData = function(dataArray)
+        this.sendData = function(dataArray, cb)
         {
                 var fd = new FormData();
                 for(var d in dataArray)
@@ -68,6 +68,7 @@ function SmartUpload(target, file)
                 }
 
                 var request = new XMLHttpRequest();
+		request.onload = cb;
                 request.open(ROOT.method, ROOT.smartTarget);
                 request.send(fd);
         }
@@ -94,8 +95,14 @@ function SmartUpload(target, file)
                         {
                                 // GET THE LENGTH OF CHUNK
                                 var len = strArr[start].byteLength;
-                                // SEND A BLOB FOR NO DATA LOSS
+                                // SEND A BLOB
                                 var data = new Blob([strArr[start]], { type: 'application/octet-stream' });
+
+				var cb = function()
+				{				
+                                	start++;
+	                                if(start < end) doSend(strArr, start, end , total);
+				}
 
                                 ROOT.sendData(
                                 {
@@ -105,10 +112,9 @@ function SmartUpload(target, file)
                                         chunkLength: len,
                                         chunkTotal: total,
                                         chunkIndex: start,
-                                        chunkStart: start * ROOT.smartSize,
+                                        chunkStart: (start * ROOT.smartSize) - 1,
                                 });
-                                start++;
-                                if(start < end) doSend(strArr, start, end , total);
+				cb();
                         }
                         doSend(strArr, start, end, str.byteLength);
                 }
