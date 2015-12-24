@@ -22,10 +22,14 @@
       }
     </style>
     
-    <script src="smart.js"></script>
+    <h1>SmartUpload.js DEMO</h1>
+    <h2>Choose a file to upload :</h2>
+    
     <input type="file" id="fileId" name="file" />
+    <br />
     <div id="progress_bar"><div class="loading percent">0%</div></div>
-
+    
+    <script src="smart.js"></script>
     <script>
       var smartUp = new SmartUpload("http://target/upload", "fileId");
       var progress = document.querySelector('.percent');
