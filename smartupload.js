@@ -1,8 +1,3 @@
-/*
-add this.onStart => mettre les bars Ã  zÃ©ro
-add this.onProgress => progress++ pour chaque fichier ok, et params(progress, total)
-*/
-
 function SmartUpload(target, file)
 {
 	var CURRENT = 0;
