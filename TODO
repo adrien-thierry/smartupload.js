@@ -3,6 +3,7 @@ TODO :
 
 - ADD the same evt param for all callback
 - ADD the SmartUpload Object to evt object
+- ADD an abort event/method
 
 
 
