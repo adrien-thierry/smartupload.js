@@ -1,3 +1,4 @@
+
 <html>
 <head></head>
   <body>
@@ -23,7 +24,18 @@
     </style>
     
     <h1>SmartUpload.js DEMO</h1>
-    <h2>Choose a file to upload :</h2>
+
+	<h2>Configure upload :</h2>
+
+	<div id="smartConfig">	
+		smartTarget : <input type="text" id="smartTarget" value="" placeholder="http://site/target/"><br />
+		smartSize :<input type="text" id="smartSize" value="131072" placeholder="131072"><br />
+		smartTimeout : <input type="text" id="smartTimeout" value="1000" placeholder="1000"><br />
+		<button id="change" onClick="changeConfig()">Change</button>
+	</div>
+
+	<br />
+	<h2>Choose a file to upload :</h2>
     
     <input type="file" id="fileId" name="file" />
     <br />
@@ -31,20 +43,30 @@
     
     <script src="smart.js"></script>
     <script>
-      var smartUp = new SmartUpload("http://target/upload", "fileId");
-      var progress = document.querySelector('.percent');
-      smartUp.onProgress = function(current, total)     
-      {
-          var percentLoaded = Math.floor((current / total) * 100);
-          progress.style.width = percentLoaded + '%';
-          progress.textContent = percentLoaded + '%';
-      }
-    
-     smartUp.onLoadStart = function()
-     {
-        progress.style.width = '0%';
-        progress.textContent = '0%';
-     };
+    	var smartUp;
+    	function changeConfig()
+    	{
+    		if(smartUp) smartUp.destruct();
+        smartUp = new SmartUpload("fileId", document.querySelector("#smartTarget").value);
+    		smartUp.smartSize = parseInt(document.querySelector("#smartSize").value);
+    		smartUp.smartTimeout = parseInt(document.querySelector("#smartTimeout").value);
+    		var progress = document.querySelector('.percent');
+    		smartUp.onProgress = function(current, total)     
+    		{
+    			var percentLoaded = Math.floor((current / total) * 100);
+    			progress.style.width = percentLoaded + '%';
+    			progress.textContent = percentLoaded + '%';
+    		}
+    		smartUp.onLoadStart = function()
+    		{
+    			progress.style.width = '0%';
+    			progress.textContent = '0%';
+    		};
+    		smartUp.onDone = function()
+    		{
+    			alert("File upload complete !");
+    		}
+    	}
     </script>
 
   </body>
