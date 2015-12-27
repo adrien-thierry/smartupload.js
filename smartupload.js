@@ -1,4 +1,4 @@
-function SmartUpload(target, file)
+function SmartUpload(file, target)
 {
 	var CURRENT = 0;
 	var TOTAL = 0;
