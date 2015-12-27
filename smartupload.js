@@ -2,7 +2,7 @@ function SmartUpload(target, file)
 {
 	var CURRENT = 0;
 	var TOTAL = 0;
-        this.smartSize = 1024 * 10;
+        this.smartSize = 1024 * 128;
 	this.smartTimeout = 1000 * 1; // IN MS
         this.smartTarget;
         this.smartFile;
@@ -11,7 +11,7 @@ function SmartUpload(target, file)
 	this.smartCurrent = CURRENT;
 	this.smartTotal = TOTAL;
         this.smartMethod = "POST";
-        this.smartAsync = true;
+        this.smartAsync = false;
        	this.smartEvent = [];
 
         // READER
@@ -20,9 +20,14 @@ function SmartUpload(target, file)
         var ROOT = this; // HANDLE TO THIS
 
         // CONSTRUCTOR
-        this.construct = function(target, file)
+	// FILE IS REQUIRED
+        this.construct = function(file, target)
         {
-                this.smartTarget = target;
+		if(target)
+		{
+	                this.smartTarget = target;
+		}
+		
                 this.smartFile = file
                 // HOOK CHANGE EVENT ON FILE INPUT WITH ID "FILE"
                 document.getElementById(file).addEventListener('change', this.handleFileSelect, false);
@@ -174,38 +179,6 @@ function SmartUpload(target, file)
                         var start = 0;
                         var end = strArr.length;
 
-                        var doSend = function(strArr, start, end, total)
-                        {
-                                // GET THE LENGTH OF CHUNK
-                                var len = strArr[start].byteLength;
-                                var data = new Blob([strArr[start]], { type: 'application/octet-stream' });
-				var next = function(err)
-				{		
-                                	if(err == null)
-					{
-						start++;
-		                                if(start < end) doSend(strArr, start, end , total);
-					}
-					else
-					{
-						setTimeout(function(){ doSend(strArr, start, end , total); }, ROOT.smartTimeout);
-					}
-				}
-				var cb = null;
-				if(!ROOT.smartAsync) cb = next;
-
-                                ROOT.sendData(
-                                {
-                                        data: data,
-                                        id: ROOT.smartId,
-                                        type: ROOT.smartType,
-                                        chunkLength: len,
-                                        chunkTotal: total,
-                                        chunkIndex: start,
-                                        chunkStart: (start * ROOT.smartSize) - 1,
-                                }, cb);
-                                if(ROOT.smartAsync) next();
-                        }
                         doSend(strArr, start, end, str.byteLength);
                 }
                 else
@@ -239,5 +212,39 @@ function SmartUpload(target, file)
         }
 
         // CALL CONSTRUCTOR
-        this.construct(target, file);
+        this.construct(file, target);
+
+
+	function doSend(strArr, start, end, total)
+        {
+        	// GET THE LENGTH OF CHUNK
+	        var len = strArr[start].byteLength;
+	        var data = new Blob([strArr[start]], { type: 'application/octet-stream' });
+	        var next = function(err)
+	        {
+		        if(err == null)
+		        {
+			        start++;
+			        if(start < end) doSend(strArr, start, end , total);
+		        }
+		        else
+		        {
+			        setTimeout(function(){ doSend(strArr, start, end , total); }, ROOT.smartTimeout);
+		        }
+	        }
+        	var cb = null;
+	        if(!ROOT.smartAsync) cb = next;
+		
+		ROOT.sendData(
+	        {
+		        data: data,
+		        id: ROOT.smartId,
+		        type: ROOT.smartType,
+		        chunkLength: len,
+		        chunkTotal: total,
+		        chunkIndex: start,
+		        chunkStart: start * ROOT.smartSize,
+	        }, cb);
+	        if(ROOT.smartAsync) next();
+        }
 }
