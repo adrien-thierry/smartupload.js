@@ -41,32 +41,32 @@
     <br />
     <div id="progress_bar"><div class="loading percent">0%</div></div>
     
-    <script src="smart.js"></script>
+    <script src="smartupload.js"></script>
     <script>
-    	var smartUp;
-    	function changeConfig()
-    	{
-    		if(smartUp) smartUp.destruct();
-        smartUp = new SmartUpload("fileId", document.querySelector("#smartTarget").value);
-    		smartUp.smartSize = parseInt(document.querySelector("#smartSize").value);
-    		smartUp.smartTimeout = parseInt(document.querySelector("#smartTimeout").value);
-    		var progress = document.querySelector('.percent');
-    		smartUp.onProgress = function(current, total)     
-    		{
-    			var percentLoaded = Math.floor((current / total) * 100);
-    			progress.style.width = percentLoaded + '%';
-    			progress.textContent = percentLoaded + '%';
-    		}
-    		smartUp.onLoadStart = function()
-    		{
-    			progress.style.width = '0%';
-    			progress.textContent = '0%';
-    		};
-    		smartUp.onDone = function()
-    		{
-    			alert("File upload complete !");
-    		}
-    	}
+	var smartUp;
+	function changeConfig()
+	{
+		if(smartUp) smartUp.destruct();
+      		smartUp = new SmartUpload("fileId", document.querySelector("#smartTarget").value);
+		smartUp.smartSize = parseInt(document.querySelector("#smartSize").value);
+		smartUp.smartTimeout = parseInt(document.querySelector("#smartTimeout").value);
+		var progress = document.querySelector('.percent');
+		smartUp.onProgress = function(current, total)     
+		{
+			var percentLoaded = Math.floor((current / total) * 100);
+			progress.style.width = percentLoaded + '%';
+			progress.textContent = percentLoaded + '%';
+		}
+		smartUp.onLoadStart = function()
+		{
+			progress.style.width = '0%';
+			progress.textContent = '0%';
+		};
+		smartUp.onDone = function()
+		{
+			alert("File upload complete !");
+		}
+	}
     </script>
 
   </body>
