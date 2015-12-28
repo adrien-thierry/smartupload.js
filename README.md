@@ -3,7 +3,7 @@
 Upload lib in js, simple and smart :
 
 ```javascript
-var smartUp = new SmartUpload("http://target/upload.php", "inputFileId");
+var smartUp = new SmartUpload("inputFileId", "http://target/upload.php");
 ```
 
 The SmartUpload object handle the file input selection, and send chunk of file to the server.
