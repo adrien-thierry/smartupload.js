@@ -19,7 +19,8 @@ Or change chunks size, method and send data synchronously:
 ```javascript
 smartUp.smartSize = 1024 * 100; //100 Ko DEFAULT => 128Ko
 smartUp.smartMethod = "PUT"; // DEFAULT => "POST"
-smartUp.smartAsync = false; // DEFAULT => true
+smartUp.smartAsync = true; // DEFAULT => false
+smartUp.smartTimeout = 5000; // DEFAULT => 1000 in ms
 ```
 
 Format
@@ -35,6 +36,18 @@ Chunks of data are sent with POST method, with multipart/form-data enctype. the 
 - chunkStart  -- the start of chunk sent in the file
 - chunkTotal  -- the length of the file
 
+Server
+------
+
+The server must return a JSON object with at least this field :
+
+```javascript
+{
+  code:0
+}
+```
+
+If code != 0, an error occured and smartupload.js will try to reupload the chunk after the smartTimeout delay.
 
 Functionalities
 ---------------
@@ -50,6 +63,10 @@ Properties
 - smartSize -- INT -- the size of each chunk, in octet
 - smartTimeout -- INT -- the timeout before re-send data when error occured in ms
 - smartAsync -- BOOL - Is data are sent synchronously or not ? 
+
+Methods
+-------
+0. destruct -- clear the handle event of the file input
 
 Events
 ------
