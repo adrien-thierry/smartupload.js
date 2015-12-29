@@ -1,3 +1,4 @@
+
 function SmartUpload(file, target)
 {
 	var CURRENT = 0;
@@ -39,6 +40,11 @@ function SmartUpload(file, target)
         	TOTAL = 0;
         }
 
+	this.destruct = function()
+	{
+		document.getElementById(file).removeEventListener('change', this.handleFileSelect);
+	}
+
         // ERROR METHOD
         this.error = function(err)
         {
@@ -75,10 +81,11 @@ function SmartUpload(file, target)
         {
                 ROOT.error("Loading file");
         }
-	this.onDone = function()
-	{
-		
-	}
+
+	this.onDone = function(){}
+
+	this.onData = function(data){}
+
         this.updateProgress = function()
         {
                 ROOT.error("Reading file");
@@ -106,6 +113,7 @@ function SmartUpload(file, target)
 				{
 					if(request.status == 200)
 					{
+						ROOT.onData(request.responseText);
 						var result = JSON.parse(request.responseText);
 						if(result.code == 0)
 						{
